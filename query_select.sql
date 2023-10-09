@@ -24,7 +24,7 @@ WHERE NOT name_artist LIKE '% %'
 -- Название треков, которые содержат слово «мой» или «my»
 SELECT name_track
 FROM Track
-WHERE LOWER(name_track) LIKE '%мой%'
+WHERE LOWER(name_track) LIKE '%мой%' --можно было использовать оператор iLIKE
 
 
 -- Задание 3
