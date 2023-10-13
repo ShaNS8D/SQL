@@ -77,17 +77,35 @@ def delete_client(conn, client_id):
             DELETE FROM Client WHERE id=%s;
             """, (client_id,))
 
-def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
-    if first_name and last_name and email and phone:
-        query_str = "first_name=%s AND last_name=%s AND email=%s AND p.phone=%s;"
-    
-    
+def find_client(conn, **values): #не правильное решение
+    for key, value in values.items():
+        with conn.cursor() as cur:
+            cur.execute(f"""SELECT * FROM client as c 
+                LEFT JOIN phones as p ON c.id = p.client_id 
+                WHERE {key} = '{value}'
+        """)
+            print('Данные клиента: ', (cur.fetchone()))
 
 
-    with conn.cursor() as cur:
-        cur.execute("SELECT * FROM Client AS c JOIN Phones AS p ON c.id = p.client_id WHERE " + "first_name=%s OR last_name=%s OR email=%s OR p.phone=%s;",
-                     (first_name, last_name, email, phone))
-        print(cur.fetchall())
+    # caunt_value = []
+    # query_string = ''
+    # if first_name:
+    #     caunt_value.append('first_name=%s')
+    # if last_name:
+    #     caunt_value.append('last_name=%s')
+    # if email:
+    #     caunt_value.append('email=%s')
+    # if phone:
+    #     caunt_value.append('phone=%s')
+    # for i in caunt_value:
+    #     query_str = i + ' AND '
+    #     query_string += query_str
+    # # str_query = query_string[:-5]
+    # str_query = "first_name=%s AND last_name=%s"
+    # with conn.cursor() as cur:
+    #     cur.execute("SELECT * FROM Client AS c JOIN Phones AS p ON c.id = p.client_id WHERE first_name=%s AND last_name=%s",
+    #                 (first_name, last_name, email, phone))
+    #     print(cur.fetchall())
 
 if __name__ == "__main__":
     db = 'homework5'
@@ -111,6 +129,8 @@ if __name__ == "__main__":
         # delete_client(conn, 2)
 
         find_client(conn, last_name='Хомяков')
+        find_client(conn, first_name='Митя', last_name='Хомяков')
+        # find_client(conn, first_name='Митя', last_name='Хомяков', phone='3216549873')
         # find_client(conn, last_name='Пузиков')
         # find_client(conn, email='puzik@mail.ru')
         # find_client(conn, phone='9215558465')
