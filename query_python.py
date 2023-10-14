@@ -77,41 +77,49 @@ def delete_client(conn, client_id):
             DELETE FROM Client WHERE id=%s;
             """, (client_id,))
 
-def find_client(conn, **values): #не правильное решение
-    for key, value in values.items():
-        with conn.cursor() as cur:
-            cur.execute(f"""SELECT * FROM client as c 
-                LEFT JOIN phones as p ON c.id = p.client_id 
-                WHERE {key} = '{value}'
-        """)
-            print('Данные клиента: ', (cur.fetchone()))
+# def find_client(conn, **values): #не правильное решение
+def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
+    # for key, value in values.items():
+    #     with conn.cursor() as cur:
+    #         cur.execute(f"""SELECT * FROM client as c 
+    #             LEFT JOIN phones as p ON c.id = p.client_id 
+    #             WHERE {key} = '{value}'
+    #     """)
+    #         print('Данные клиента: ', (cur.fetchone()))
 
-
-    # caunt_value = []
-    # query_string = ''
-    # if first_name:
-    #     caunt_value.append('first_name=%s')
-    # if last_name:
-    #     caunt_value.append('last_name=%s')
-    # if email:
-    #     caunt_value.append('email=%s')
-    # if phone:
-    #     caunt_value.append('phone=%s')
-    # for i in caunt_value:
-    #     query_str = i + ' AND '
-    #     query_string += query_str
-    # # str_query = query_string[:-5]
-    # str_query = "first_name=%s AND last_name=%s"
-    # with conn.cursor() as cur:
-    #     cur.execute("SELECT * FROM Client AS c JOIN Phones AS p ON c.id = p.client_id WHERE first_name=%s AND last_name=%s",
-    #                 (first_name, last_name, email, phone))
-    #     print(cur.fetchall())
+    caunt_value = []
+    tuple_caunt  = []
+    query_string = ""
+    if first_name:
+        caunt_value.append("first_name=%s")
+        tuple_caunt.append(first_name)
+    if last_name:
+        caunt_value.append("last_name=%s")
+        tuple_caunt.append(last_name)
+    if email:
+        caunt_value.append("email=%s")
+        tuple_caunt.append(email)
+    if phone:
+        caunt_value.append("phone=%s")
+        tuple_caunt.append(phone)
+    
+    for i in caunt_value:
+        query_str = i + " AND "
+        query_string += query_str
+    
+    str_query = query_string[:-5]
+    tuple_value = tuple(tuple_caunt)
+    
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM Client AS c LEFT JOIN Phones AS p ON c.id = p.client_id WHERE "
+                     + str_query, tuple_value)
+        print(cur.fetchall())
 
 if __name__ == "__main__":
     db = 'homework5'
     username = 'postgres'
     passw = '253553'
-    with psycopg2.connect(database=db, user=username, password=passw) as conn:
+    with psycopg2.connect(database=db, user=username, password=passw) as conn: 
         # create_table(conn)
         # add_client(conn, 'Вася', 'Пузиков', 'puzik@mail.ru', '9215558465')
         # add_client(conn, 'Толя', 'Куров', 'kirovt@mail.ru', '')
@@ -130,9 +138,10 @@ if __name__ == "__main__":
 
         find_client(conn, last_name='Хомяков')
         find_client(conn, first_name='Митя', last_name='Хомяков')
-        # find_client(conn, first_name='Митя', last_name='Хомяков', phone='3216549873')
-        # find_client(conn, last_name='Пузиков')
-        # find_client(conn, email='puzik@mail.ru')
-        # find_client(conn, phone='9215558465')
+        find_client(conn, first_name='Митя', phone='3216549873')
+        find_client(conn, last_name='Пузиков')
+        find_client(conn, last_name='Пузиков', phone='7897897891')
+        find_client(conn, email='puzik@mail.ru')
+        find_client(conn, phone='9215558465')
 
     # conn.close()
